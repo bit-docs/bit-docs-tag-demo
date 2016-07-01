@@ -7,7 +7,7 @@ module.exports = function(bitDocs){
 	deps[pkg.name] = pkg.version;
 
 	bitDocs.register("html", {
-		dependencies: dependencies
+		dependencies: deps
 	});
 
 	bitDocs.register("tags", tags);
