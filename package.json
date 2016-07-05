@@ -1,6 +1,6 @@
 {
   "name": "bit-docs-tag-demo",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "@demo tag for bit-docs",
   "main": "demo.js",
   "scripts": {
