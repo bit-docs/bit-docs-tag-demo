@@ -80,8 +80,8 @@ module.exports = function(node){
 				var scripts = [].slice.call(this.contentDocument.querySelectorAll("script"));
 				// get the first one that is JS
 				for(var i =0; i < scripts.length; i++){
-					if(!scripts[i].type || scripts[i].type.indexOf("javascript") >= 0 &&
-						!scripts[i].src){
+					if(!scripts[i].type || (scripts[i].type.indexOf("javascript") === 0 &&
+						!scripts[i].src)){
 						source =  scripts[i].innerHTML;
 						break;
 					}
