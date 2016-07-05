@@ -44,10 +44,10 @@ module.exports = function(node){
 			var js = getJS.call(this, sourceEl);
 
 			var dataForHtml = node.querySelector("[data-for=html] > pre");
-			dataForHtml.innerHTML = html;
+			dataForHtml.innerHTML = prettyify(html);
 
 			var dataForJS = node.querySelector("[data-for=js] > pre");
-			dataForJS.innerHTML = js;
+			dataForJS.innerHTML = prettyify(js.replace(/\t/g,"  "));
 			show(node.querySelector("[data-tab=js]"));
 
 			tabs();
@@ -124,6 +124,12 @@ module.exports = function(node){
 			tabs.forEach(cb);
 		}
 
+	}
+
+	function prettyify(txt){
+		txt = txt.replace(/</g, '&lt;');
+		return typeof prettyPrintOne !== "undefined" ?
+			prettyPrintOne(txt) : txt;
 	}
 
 };
