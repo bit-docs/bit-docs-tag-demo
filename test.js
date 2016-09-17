@@ -41,7 +41,7 @@ var open = function(url, callback, done){
 		.then(function(){
 			callback(browser, function(){
 				server.close();
-			})
+			});
 		}).catch(function(e){
 			server.close();
 			done(e)

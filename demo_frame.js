@@ -17,7 +17,7 @@ function render(node, docConfig){
 	var demoDiv = document.createElement("div");
 	demoDiv.className = "demo";
 	demoDiv.innerHTML = template;
-	var demoSrc = (docConfig.demoSrcRoot || "..") + "/" + node.dataset.demoSrc;
+	var demoSrc = (docConfig.demoSrcRoot || "..") + "/" + (node.dataset ? node.dataset.demoSrc : node.getAttribute("data-demo-src"));
 	demoDiv.getElementsByTagName("iframe")[0].src = demoSrc;
 
 	node.innerHTML = "";
@@ -55,7 +55,7 @@ module.exports = function(node){
 
 	function getHTML(demoEl) {
 			var html = demoEl ? demoEl.innerHTML : this.contentWindow.DEMO_HTML;
-			
+
 			if(!html) {
 				// try to make from body
 				var clonedBody = this.contentDocument.body.cloneNode(true);
@@ -109,12 +109,22 @@ module.exports = function(node){
 
 		function toggle(tabName) {
 			each(".tab", function(el){
-				el.classList.remove("active");
+				if(el.classList) {
+					el.classList.remove("active");
+				} else {
+					el.className = "tab";
+				}
+
 			});
 
 			each(".tab-content", hide);
 			each(".tab[data-tab='" + tabName + "']", function(el){
-				el.classList.add("active");
+				if(el.classList) {
+					el.classList.add("active");
+				} else {
+					el.className = "tab active";
+				}
+
 			});
 			each("[data-for='" + tabName + "']", show);
 		}

@@ -30,7 +30,7 @@
     "bit-docs-type-annotate": "^0.0.1"
   },
   "devDependencies": {
-    "bit-docs-generate-html": "^0.0.3",
+    "bit-docs-generate-html": "^0.2.0",
     "connect": "^2.14.4",
     "mocha": "^2.5.3",
     "zombie": "^4.2.1"
