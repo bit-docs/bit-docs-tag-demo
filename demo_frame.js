@@ -13,11 +13,11 @@ var template = '<ul>' +
 		'<pre class="prettyprint lang-js"></pre>' +
 	'</div>';
 
-function render(node, docConfig){
+function render(node, docObject){
 	var demoDiv = document.createElement("div");
 	demoDiv.className = "demo";
 	demoDiv.innerHTML = template;
-	var demoSrc = (docConfig.demoSrcRoot || "..") + "/" + (node.dataset ? node.dataset.demoSrc : node.getAttribute("data-demo-src"));
+	var demoSrc = (docObject.pathToRoot || "..") + "/" + (node.dataset ? node.dataset.demoSrc : node.getAttribute("data-demo-src"));
 	demoDiv.getElementsByTagName("iframe")[0].src = demoSrc;
 
 	node.innerHTML = "";
@@ -28,9 +28,8 @@ function render(node, docConfig){
 
 
 module.exports = function(node){
-	var docConfig = window.docConfig || {};
-
-	render(node, docConfig);
+	var docObject = window.docObject || {};
+	render(node, docObject);
 
 	var iframe = node.getElementsByTagName("iframe")[0];
 
