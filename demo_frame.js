@@ -32,9 +32,7 @@ module.exports = function(node){
 	render(node, docObject);
 
 	var iframe = node.getElementsByTagName("iframe")[0];
-
 	iframe.addEventListener("load", process);
-	iframe.contentWindow.window.addEventListener('resize', resizeIframe);
 
 	function process(){
 		resizeIframe();
