@@ -18,7 +18,7 @@ function render(node, docObject){
 	demoDiv.className = "demo";
 	demoDiv.innerHTML = template;
 	var demoSrc = (docObject.pathToRoot || "..") + "/" + (node.dataset ? node.dataset.demoSrc : node.getAttribute("data-demo-src"));
-	var iframe = demoDiv.getElementsByTagName("iframe")[0].src = demoSrc;
+	demoDiv.getElementsByTagName("iframe")[0].src = demoSrc;
 
 	node.innerHTML = "";
 	node.appendChild(demoDiv);
