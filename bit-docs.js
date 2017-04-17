@@ -14,7 +14,7 @@ module.exports = function(bitDocs){
 	var pkg = require("./package.json");
 	var deps = {};
 
-	deps[pkg.name] = pkg.version;
+	deps[pkg.name] = 'file:' + __dirname;
 
 	bitDocs.register("html", {
 		dependencies: deps
