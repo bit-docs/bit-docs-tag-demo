@@ -25,14 +25,22 @@
     "url": "https://github.com/bit-docs/bit-docs-tag-demo/issues"
   },
   "homepage": "https://github.com/bit-docs/bit-docs-tag-demo#readme",
+  "steal": {
+    "plugins": [
+      "steal-less"
+    ]
+  },
   "dependencies": {
-    "bit-docs-process-tags": "^0.0.3",
+    "bit-docs-process-tags": "^0.0.5",
     "bit-docs-type-annotate": "^0.0.1"
   },
   "devDependencies": {
-    "bit-docs-generate-html": "^0.2.0",
+    "bit-docs-generate-html": "0.5.0-pre.3",
     "connect": "^2.14.4",
     "mocha": "^2.5.3",
+    "steal": "^1.4.6",
+    "steal-less": "^1.2.0",
+    "steal-qunit": "^1.0.1",
     "zombie": "^4.2.1"
   }
 }

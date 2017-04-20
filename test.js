@@ -90,4 +90,38 @@ describe("bit-docs-tag-demo", function(){
 			},done);
 		});
 	});
+
+	it.only("client basics work", function(done) {
+		this.timeout(120000);
+		// emulate docMap promise (normally built from finders)
+		var docMap = Promise.resolve({
+			index: {
+				name: "index",
+				demo: "path/to/demo.html",
+				body: "<div class='demo_wrapper' data-demo-src='../basics/demo.html'></div>\n"
+			}
+		});
+
+		generate(docMap, {
+			html: {
+				dependencies: {
+					"bit-docs-tag-demo": 'file:' + __dirname,
+				}
+			},
+			dest: path.join(__dirname, "test/resizes/generated-resizes-test"),
+			parent: "index",
+			forceBuild: true,
+			debug: true,
+			minifyBuild: false
+		}).then(function(){
+			done();
+			// testee("generated-resizes-test.html").then(function(results) {
+			// 	results.forEach(function(result) {
+			// 		asset.ok(result.passed, result.message);
+			// 	});
+			// });
+		}, function(err) {
+			done(err);
+		});
+	});
 });
