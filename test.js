@@ -3,7 +3,8 @@ var assert = require("assert"),
 	path = require("path");
 
 var Browser = require("zombie"),
-	express = require('express');
+	express = require('express'),
+	testee = require('testee');
 
 Browser.localhost('127.0.0.1', 8081);
 
@@ -65,8 +66,8 @@ describe("bit-docs-tag-demo", function(){
 		}, done);
 	});
 
-	it("client basics work", function(done) {
-		this.timeout(120000);
+	it.only("client basics work", function(done) {
+		this.timeout(60000);
 
 		var docMap = Promise.resolve({
 			index: {
@@ -88,14 +89,17 @@ describe("bit-docs-tag-demo", function(){
 			debug: true,
 			minifyBuild: false
 		}).then(function(){
-			done();
-			// testee("generated-resizes-test.html").then(function(results) {
-			// 	results.forEach(function(result) {
-			// 		asset.ok(result.passed, result.message);
-			// 	});
-			// });
-		}, function(err) {
-			done(err);
-		});
+			testee.test(['test/resizes/resizes-test.html'], 'firefox', {
+				reporter: 'Spec'
+			}).then(function(results) {
+				console.log('123 results');
+				console.dir(results);
+				console.dir(results[0].tests);
+				results.forEach(function(result) {
+					assert.ok(result.passed, result.message);
+				});
+				done();
+			}, done);
+		}, done);
 	});
 });

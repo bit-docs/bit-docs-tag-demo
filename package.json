@@ -36,6 +36,7 @@
     "steal": "^1.4.6",
     "steal-less": "^1.2.0",
     "steal-qunit": "^1.0.1",
+    "testee": "^0.4.0",
     "zombie": "^5.0.5"
   },
   "steal": {
