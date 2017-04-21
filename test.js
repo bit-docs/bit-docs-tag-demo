@@ -3,41 +3,15 @@ var generate = require("bit-docs-generate-html/generate");
 var path = require("path");
 
 var Browser = require("zombie"),
-	connect = require("connect");
-
-
-var find = function(browser, property, callback, done){
-	var start = new Date();
-	var check = function(){
-		if(browser.window && browser.window[property]) {
-			callback(browser.window[property]);
-		} else if(new Date() - start < 2000){
-			setTimeout(check, 20);
-		} else {
-			done("failed to find "+property);
-		}
-	};
-	check();
-};
-var waitFor = function(browser, checker, callback, done){
-	var start = new Date();
-	var check = function(){
-		if(checker(browser.window)) {
-			callback(browser.window);
-		} else if(new Date() - start < 2000){
-			setTimeout(check, 20);
-		} else {
-			done(new Error("checker was never true"));
-		}
-	};
-	check();
-};
-
+	connect = require("connect"),
+	http = require('http'),
+	serveStatic = require('serve-static');
 
 var open = function(url, callback, done){
-	var server = connect().use(connect.static(path.join(__dirname))).listen(8081);
+	var app = connect().use(serveStatic(__dirname));
+	var server = http.createServer(app).listen(8081, "127.0.0.1");
 	var browser = new Browser();
-	browser.visit("http://localhost:8081/"+url)
+	browser.visit(url)
 		.then(function(){
 			callback(browser, function(){
 				server.close();
@@ -48,8 +22,11 @@ var open = function(url, callback, done){
 		});
 };
 
+Browser.localhost('127.0.0.1', 8081);
+
 describe("bit-docs-tag-demo", function(){
-	it("basics works", function(done){
+
+	it("basics works", function (done) {
 		this.timeout(60000);
 
 		var docMap = Promise.resolve({
@@ -63,7 +40,7 @@ describe("bit-docs-tag-demo", function(){
 		generate(docMap, {
 			html: {
 				dependencies: {
-					"bit-docs-tag-demo": __dirname
+					"bit-docs-tag-demo": 'file:' + __dirname
 				}
 			},
 			dest: path.join(__dirname, "temp"),
@@ -71,29 +48,32 @@ describe("bit-docs-tag-demo", function(){
 			forceBuild: true,
 			debug: true,
 			minifyBuild: false
-		}).then(function(){
+		}).then(function () {
 
-			open("temp/index.html",function(browser, close){
-				waitFor(browser, function(window){
-					return window.document.getElementsByClassName("demo").length;
-				}, function(){
-				var doc = browser.window.document;
-				var tabs = doc.getElementsByClassName("tab");
+			open("temp/index.html", function (browser, close) {
+				//browser.on('loaded', function(document) {
+					browser.assert.success();
+					browser.assert.element('section.body');
+					browser.assert.element('.demo');
 
-				assert.equal(tabs.length, 3, "there are 3 tabs");
+					var doc = browser.window.document;
+					var tabs = doc.getElementsByClassName("tab");
 
-				// TODO better testing, click on stuff
+					assert.equal(tabs.length, 3, "there are 3 tabs");
 
-				close();
-				done();
-				});
-			},done);
-		});
+					// TODO better testing, click on stuff
+
+					close();
+					done();
+				//});
+			}, done);
+
+		}, done);
 	});
 
-	it.only("client basics work", function(done) {
+	it("client basics work", function(done) {
 		this.timeout(120000);
-		// emulate docMap promise (normally built from finders)
+
 		var docMap = Promise.resolve({
 			index: {
 				name: "index",
