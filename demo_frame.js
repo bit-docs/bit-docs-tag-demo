@@ -101,7 +101,7 @@ module.exports = function(node){
 		node.querySelector("ul").addEventListener("click", function(ev){
 			var el = ev.target;
 			if(el.className === "tab") {
-				toggle(el.dataset.tab);
+				toggle(el.dataset ? el.dataset.tab : el.getAttribute("data-tab"));
 			}
 		});
 		toggle("demo");
