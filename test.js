@@ -232,7 +232,7 @@ describe('bit-docs-tag-demo', function () {
 			describe('clicking all HTML tabs', function () {
 				before(function () {
 					var htmlTabs = browser.queryAll('[data-tab="html"]');
-					return Promise.all(htmlTabs.map(function(el) {
+					return Promise.all(htmlTabs.map(function (el) {
 						browser.click(el);
 					}));
 				});
