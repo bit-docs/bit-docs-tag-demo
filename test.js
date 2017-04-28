@@ -111,6 +111,26 @@ describe('bit-docs-tag-demo', function () {
 			});
 
 			basicsWork();
+
+			describe('HTML', function () {
+				it('has correct content', function () {
+					browser.assert.text(
+						'[data-for="html"] pre',
+						'<b>Hello world!</b>',
+						'html tab content is correct');
+				});
+			});
+
+			describe('JS', function () {
+				it('has correct content', function () {
+					browser.assert.text(
+						'[data-for="js"] pre', [
+							'var div = document.createElement("div");',
+							'div.textContent = "it worked!";',
+							'document.body.appendChild(div);'
+						].join(' '), 'js tab content is correct');
+				});
+			});
 		});
 
 		describe('without ids', function () {
@@ -119,6 +139,27 @@ describe('bit-docs-tag-demo', function () {
 			});
 
 			basicsWork();
+
+			describe('HTML', function () {
+				it('has correct content', function () {
+					browser.assert.text(
+						'[data-for="html"] pre', [
+							'<div><b>Hello world!</b></div>',
+							'<div>it worked!</div>'
+						].join(' '), 'html tab content is correct');
+				});
+			});
+
+			describe('JS', function () {
+				it('has correct content', function () {
+					browser.assert.text(
+						'[data-for="js"] pre', [
+							'var div = document.createElement("div");',
+							'div.textContent = "it worked!";',
+							'document.body.appendChild(div);'
+						].join(' '), 'js tab content is correct');
+				});
+			});
 		});
 
 		describe('without js', function () {
@@ -128,9 +169,25 @@ describe('bit-docs-tag-demo', function () {
 
 			basicsWork();
 
-			describe('JS tab', function () {
-				it('is hidden', function () {
-					browser.assert.style('[data-tab="js"]', 'display', 'none', 'js tab content is hidden');
+			describe('HTML', function () {
+				it('has correct content', function () {
+					browser.assert.text(
+						'[data-for="html"] pre',
+						'<b>Hello world!</b>',
+						'html tab content is correct');
+				});
+			});
+
+			describe('JS', function () {
+				it('tab is hidden', function () {
+					browser.assert.style('[data-tab="js"]', 'display', 'none', 'js tab is hidden');
+				});
+
+				it('has no content', function () {
+					browser.assert.text(
+						'[data-for="js"] pre',
+						'',
+						'js tab content is empty');
 				});
 			});
 		});
@@ -154,7 +211,7 @@ describe('bit-docs-tag-demo', function () {
 					}));
 				});
 
-				it('changes tabs and contents', function () {
+				it('changes all tabs and contents', function () {
 					browser.assert.attribute('.tab.active', 'data-tab', 'html', 'html is active data-tab');
 					browser.assert.style('[data-for="html"]', 'display', '', 'html tab content is visible');
 				});
