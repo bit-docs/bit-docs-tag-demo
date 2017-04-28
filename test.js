@@ -71,6 +71,7 @@ describe('bit-docs-tag-demo', function () {
 		function basicsWork() {
 			it('exists on page', function () {
 				browser.assert.success();
+				browser.assert.global('PACKAGES');
 				browser.assert.element('.demo_wrapper', 'wrapper exists');
 				browser.assert.element('.demo_wrapper .demo', 'injected into wrapper');
 			});
@@ -105,6 +106,42 @@ describe('bit-docs-tag-demo', function () {
 			});
 		}
 
+		function iframeAssert(path, regex) {
+			describe('iframe (' + path + '.html)', function () {
+				var iframe, iframeDocument;
+
+				before(function () {
+					iframe = browser.query('iframe');
+					iframeDocument = iframe.contentWindow.document;
+				});
+
+				it('has correct url and parent', function () {
+					assert.equal(iframe.src, '../test/basics/' + path + '.html');
+					assert.equal(iframeDocument.URL, 'http://example.com/test/basics/' + path + '.html');
+					assert.equal(iframe.contentWindow.parent, browser.window.parent);
+				});
+
+				it('has correct content', function () {
+					assert(/Hello world/.test(iframeDocument.body.innerHTML));
+					if (regex instanceof RegExp) {
+						assert(regex.test(iframeDocument.body.innerHTML));
+					}
+				});
+			});
+		}
+
+		function dataforAssert(selector, strings) {
+			describe('data-for=' + selector, function () {
+				before(function () {
+					strings = (strings instanceof Array) ? strings.join(' ') : strings;
+				});
+
+				it('has correct content', function () {
+					browser.assert.text('[data-for="' + selector + '"] pre', strings);
+				});
+			});
+		}
+
 		describe('with ids', function () {
 			before(function () {
 				return browser.visit('/temp/withIds.html');
@@ -112,24 +149,20 @@ describe('bit-docs-tag-demo', function () {
 
 			basicsWork();
 
+			describe('Demo', function () {
+				iframeAssert('demo-with-ids', /it worked/);
+			});
+
 			describe('HTML', function () {
-				it('has correct content', function () {
-					browser.assert.text(
-						'[data-for="html"] pre',
-						'<b>Hello world!</b>',
-						'html tab content is correct');
-				});
+				dataforAssert('html', '<b>Hello world!</b>');
 			});
 
 			describe('JS', function () {
-				it('has correct content', function () {
-					browser.assert.text(
-						'[data-for="js"] pre', [
-							'var div = document.createElement("div");',
-							'div.textContent = "it worked!";',
-							'document.body.appendChild(div);'
-						].join(' '), 'js tab content is correct');
-				});
+				dataforAssert('js', [
+					'var div = document.createElement("div");',
+					'div.textContent = "it worked!";',
+					'document.body.appendChild(div);'
+				]);
 			});
 		});
 
@@ -140,25 +173,23 @@ describe('bit-docs-tag-demo', function () {
 
 			basicsWork();
 
+			describe('Demo', function () {
+				iframeAssert('demo-without-ids', /it worked/);
+			});
+
 			describe('HTML', function () {
-				it('has correct content', function () {
-					browser.assert.text(
-						'[data-for="html"] pre', [
-							'<div><b>Hello world!</b></div>',
-							'<div>it worked!</div>'
-						].join(' '), 'html tab content is correct');
-				});
+				dataforAssert('html', [
+					'<div><b>Hello world!</b></div>',
+					'<div>it worked!</div>'
+				]);
 			});
 
 			describe('JS', function () {
-				it('has correct content', function () {
-					browser.assert.text(
-						'[data-for="js"] pre', [
-							'var div = document.createElement("div");',
-							'div.textContent = "it worked!";',
-							'document.body.appendChild(div);'
-						].join(' '), 'js tab content is correct');
-				});
+				dataforAssert('js', [
+					'var div = document.createElement("div");',
+					'div.textContent = "it worked!";',
+					'document.body.appendChild(div);'
+				]);
 			});
 		});
 
@@ -169,25 +200,20 @@ describe('bit-docs-tag-demo', function () {
 
 			basicsWork();
 
+			describe('Demo', function () {
+				iframeAssert('demo-without-js');
+			});
+
 			describe('HTML', function () {
-				it('has correct content', function () {
-					browser.assert.text(
-						'[data-for="html"] pre',
-						'<b>Hello world!</b>',
-						'html tab content is correct');
-				});
+				dataforAssert('html', '<b>Hello world!</b>');
 			});
 
 			describe('JS', function () {
+				// has no content
+				dataforAssert('js', '');
+
 				it('tab is hidden', function () {
 					browser.assert.style('[data-tab="js"]', 'display', 'none', 'js tab is hidden');
-				});
-
-				it('has no content', function () {
-					browser.assert.text(
-						'[data-for="js"] pre',
-						'',
-						'js tab content is empty');
 				});
 			});
 		});
