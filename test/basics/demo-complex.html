@@ -1,7 +1,8 @@
 <script type='text/stache' can-autorender id='demo-html'>
 	{{#each items}}
-		<li ($click)='items.splice(%index,1)'>{{name}}</li>
+		<li>{{name}}</li>
 	{{/each}}
+</script>
 </script>
 
 <script src="../../node_modules/steal/steal.js" main="@empty" id='demo-source'>
@@ -12,6 +13,6 @@ import viewModel from "can-view-model";
 import DefineList from "can-define/list/list";
 var el = document.getElementById("demo-html");
 viewModel(el, {
-	items: new DefineList([{name: "first"}, {name: "second"}])
+	items: new DefineList([{name: "Hello world!"}, {name: "CanJS is cool"}])
 });
 </script>

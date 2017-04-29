@@ -7,6 +7,15 @@ var path = require('path'),
 
 Browser.localhost('*.example.com', 3003);
 
+/*
+ * Debug options:
+ *	npm --debug test
+ *	npm --devBuild test
+ *	npm --skipGenerate test
+ *	npm --debug --devBuild test
+ *	npm --debug --skipGenerate test
+ */
+
 describe('bit-docs-tag-demo', function () {
 	var server = express(),
 		browser = new Browser(),
@@ -33,6 +42,13 @@ describe('bit-docs-tag-demo', function () {
 				return '<div class="demo_wrapper" data-demo-src="test/basics/' + path + '.html"></div>' + "\n"
 			}
 
+			function all_demos() {
+				return demo_wrapper('demo-with-ids') + "\n" +
+					demo_wrapper('demo-without-ids') + "\n" +
+					demo_wrapper('demo-without-js') + "\n" +
+					demo_wrapper('demo-complex');
+			}
+
 			var docMap = Promise.resolve({
 				withIds: {
 					name: "withIds",
@@ -43,9 +59,12 @@ describe('bit-docs-tag-demo', function () {
 				}, withoutJs: {
 					name: "withoutJs",
 					body: demo_wrapper('demo-without-js')
+				}, complex: {
+					name: "complex",
+					body: demo_wrapper('demo-complex')
 				}, index: {
 					name: "index",
-					body: demo_wrapper('demo-with-ids') + demo_wrapper('demo-without-ids') + demo_wrapper('demo-without-js')
+					body: all_demos()
 				}
 			});
 
@@ -88,7 +107,7 @@ describe('bit-docs-tag-demo', function () {
 				});
 
 				it('defaults to demo', function () {
-					browser.assert.text('.tab.active', 'Demo', 'Demo is active tab text');
+					browser.assert.text('.tab.active', 'Demo', '"Demo" is active tab text');
 					browser.assert.attribute('.tab.active', 'data-tab', 'demo', 'demo is active data-tab');
 					browser.assert.style('[data-for="demo"]', 'display', '', 'demo tab content is visible');
 				});
@@ -133,7 +152,9 @@ describe('bit-docs-tag-demo', function () {
 		function dataforAssert(selector, strings) {
 			describe('data-for=' + selector, function () {
 				before(function () {
-					strings = (strings instanceof Array) ? strings.join(' ') : strings;
+					if (strings instanceof Array) {
+						strings = strings.join(' ');
+					}
 				});
 
 				it('has correct content', function () {
@@ -209,7 +230,7 @@ describe('bit-docs-tag-demo', function () {
 			});
 
 			describe('JS', function () {
-				// has no content
+				// expect no content
 				dataforAssert('js', '');
 
 				it('tab is hidden', function () {
@@ -218,15 +239,43 @@ describe('bit-docs-tag-demo', function () {
 			});
 		});
 
+		describe('complex', function () {
+			this.timeout(4000);
+
+			before(function () {
+				return browser.visit('/temp/complex.html');
+			});
+
+			basicsWork();
+
+			describe('Demo', function () {
+				iframeAssert('demo-complex', /CanJS is cool/);
+			});
+
+			describe('HTML', function () {
+				dataforAssert('html', [
+					'{{#each items}}',
+					'<li>{{name}}</li>',
+					'{{/each}}'
+				]);
+			});
+
+			describe('JS', function () {
+				dataforAssert('js', /viewModel/);
+			});
+		});
+
 		describe('multiple instances', function () {
+			this.timeout(8000);
+
 			before(function () {
 				return browser.visit('/temp/index.html');
 			});
 
 			it('exist on page', function () {
 				browser.assert.success();
-				browser.assert.elements('.demo_wrapper', 3, 'three wrappers exists');
-				browser.assert.elements('.demo_wrapper .demo', 3, 'three injected into wrappers');
+				browser.assert.elements('.demo_wrapper', 4, 'four wrappers exists');
+				browser.assert.elements('.demo_wrapper .demo', 4, 'four injected into wrappers');
 			});
 
 			describe('clicking all HTML tabs', function () {
