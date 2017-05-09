@@ -22,7 +22,10 @@ describe('bit-docs-tag-demo', function () {
 	var temp = path.join(__dirname, 'temp');
 
 	before(function () {
-		if (!!process.env.npm_config_debug) { browser.debug(); }
+		if (!!process.env.npm_config_debug) {
+			browser.debug();
+		}
+
 		return new Promise(function (resolve, reject) {
 			server = server.use('/', express.static(__dirname)).listen(3003, resolve);
 			server.on('error', reject);
@@ -31,7 +34,10 @@ describe('bit-docs-tag-demo', function () {
 
 	describe('temp directory', function () {
 		before(function (done) {
-			if (!!process.env.npm_config_skipGenerate) { this.skip(); }
+			if (!!process.env.npm_config_skipGenerate) {
+				this.skip();
+			}
+
 			rmrf(temp, done);
 		});
 
@@ -43,10 +49,14 @@ describe('bit-docs-tag-demo', function () {
 			}
 
 			function all_demos() {
-				return demo_wrapper('demo-with-ids') + "\n" +
-					demo_wrapper('demo-without-ids') + "\n" +
-					demo_wrapper('demo-without-js') + "\n" +
-					demo_wrapper('demo-complex');
+				return [
+					'demo-with-ids',
+					'demo-without-ids',
+					'demo-without-js',
+					'demo-complex'
+				].map(function (demo) {
+					return '<h2>' + demo + '</h2>' + demo_wrapper(demo);
+				}).join('<br>');
 			}
 
 			var docMap = Promise.resolve({
@@ -143,6 +153,7 @@ describe('bit-docs-tag-demo', function () {
 
 				it('has correct content', function () {
 					assert(/Hello world/.test(iframeDocument.body.innerHTML));
+
 					if (regex instanceof RegExp) {
 						assert(regex.test(iframeDocument.body.innerHTML));
 					}
@@ -282,6 +293,7 @@ describe('bit-docs-tag-demo', function () {
 			describe('clicking all HTML tabs', function () {
 				before(function () {
 					var htmlTabs = browser.queryAll('[data-tab="html"]');
+
 					return Promise.all(htmlTabs.map(function (el) {
 						browser.click(el);
 					}));
