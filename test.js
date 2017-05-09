@@ -1,9 +1,9 @@
-var path = require('path'),
-	rmrf = require('rimraf'),
-	assert = require('assert'),
-	Browser = require('zombie'),
-	express = require('express'),
-	generate = require('bit-docs-generate-html/generate');
+var Browser = require('zombie');
+var assert = require('assert');
+var express = require('express');
+var generate = require('bit-docs-generate-html/generate');
+var path = require('path');
+var rmrf = require('rimraf');
 
 Browser.localhost('*.example.com', 3003);
 
@@ -17,9 +17,9 @@ Browser.localhost('*.example.com', 3003);
  */
 
 describe('bit-docs-tag-demo', function () {
-	var server = express(),
-		browser = new Browser(),
-		temp = path.join(__dirname, 'temp');
+	var server = express();
+	var browser = new Browser();
+	var temp = path.join(__dirname, 'temp');
 
 	before(function () {
 		if (!!process.env.npm_config_debug) { browser.debug(); }
@@ -127,7 +127,8 @@ describe('bit-docs-tag-demo', function () {
 
 		function iframeAssert(path, regex) {
 			describe('iframe (' + path + '.html)', function () {
-				var iframe, iframeDocument;
+				var iframe;
+				var iframeDocument;
 
 				before(function () {
 					iframe = browser.query('iframe');
