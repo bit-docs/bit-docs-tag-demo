@@ -19,7 +19,7 @@ Browser.localhost('*.example.com', 3003);
 describe('bit-docs-tag-demo', function () {
 	var browser = new Browser();
 	var server = express();
-	var temp = path.join(__dirname, 'temp');
+	var temp = path.join(__dirname, 'test', 'temp');
 
 	before(function () {
 		if (!!process.env.npm_config_debug) {
@@ -45,7 +45,7 @@ describe('bit-docs-tag-demo', function () {
 			this.timeout(60000);
 
 			function demo_wrapper(path) {
-				return '<div class="demo_wrapper" data-demo-src="test/basics/' + path + '.html"></div>' + "\n"
+				return '<div class="demo_wrapper" data-demo-src="demos/' + path + '.html"></div>' + "\n"
 			}
 
 			function all_demos() {
@@ -146,8 +146,8 @@ describe('bit-docs-tag-demo', function () {
 				});
 
 				it('has correct url and parent', function () {
-					assert.equal(iframe.src, '../test/basics/' + path + '.html');
-					assert.equal(iframeDocument.URL, 'http://example.com/test/basics/' + path + '.html');
+					assert.equal(iframe.src, '../demos/' + path + '.html');
+					assert.equal(iframeDocument.URL, 'http://example.com/test/demos/' + path + '.html');
 					assert.equal(iframe.contentWindow.parent, browser.window.parent);
 				});
 
@@ -177,7 +177,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('with ids', function () {
 			before(function () {
-				return browser.visit('/temp/withIds.html');
+				return browser.visit('/test/temp/withIds.html');
 			});
 
 			basicsWork();
@@ -201,7 +201,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('without ids', function () {
 			before(function () {
-				return browser.visit('/temp/withoutIds.html');
+				return browser.visit('/test/temp/withoutIds.html');
 			});
 
 			basicsWork();
@@ -228,7 +228,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('without js', function () {
 			before(function () {
-				return browser.visit('/temp/withoutJs.html');
+				return browser.visit('/test/temp/withoutJs.html');
 			});
 
 			basicsWork();
@@ -255,7 +255,7 @@ describe('bit-docs-tag-demo', function () {
 			this.timeout(4000);
 
 			before(function () {
-				return browser.visit('/temp/complex.html');
+				return browser.visit('/test/temp/complex.html');
 			});
 
 			basicsWork();
@@ -281,7 +281,7 @@ describe('bit-docs-tag-demo', function () {
 			this.timeout(8000);
 
 			before(function () {
-				return browser.visit('/temp/index.html');
+				return browser.visit('/test/temp/index.html');
 			});
 
 			it('exist on page', function () {
