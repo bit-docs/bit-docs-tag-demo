@@ -88,7 +88,7 @@ module.exports = function(node){
 					}
 				}
 			}
-			return (source ? source.trim() : false);
+			return (source ? source.trim() : '');
 	}
 
 	function show(el) {
