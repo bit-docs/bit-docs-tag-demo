@@ -17,8 +17,8 @@ Browser.localhost('*.example.com', 3003);
  */
 
 describe('bit-docs-tag-demo', function () {
-	var server = express();
 	var browser = new Browser();
+	var server = express();
 	var temp = path.join(__dirname, 'temp');
 
 	before(function () {
