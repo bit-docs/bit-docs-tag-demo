@@ -19,7 +19,7 @@ Browser.localhost('*.example.com', 3003);
 describe('bit-docs-tag-demo', function () {
 	var browser = new Browser();
 	var server = express();
-	var temp = path.join(__dirname, 'test', 'temp');
+	var temp = path.join(__dirname, 'temp');
 
 	before(function () {
 		if (!!process.env.npm_config_debug) {
@@ -53,7 +53,7 @@ describe('bit-docs-tag-demo', function () {
 					'demo-with-ids',
 					'demo-without-ids',
 					'demo-without-js',
-					'demo-complex'
+					'demo-complex/demo-complex'
 				].map(function (demo) {
 					return '<h2>' + demo + '</h2>' + demo_wrapper(demo);
 				}).join('<br>');
@@ -61,19 +61,19 @@ describe('bit-docs-tag-demo', function () {
 
 			var docMap = Promise.resolve({
 				withIds: {
-					name: "withIds",
+					name: 'withIds',
 					body: demo_wrapper('demo-with-ids')
 				}, withoutIds: {
-					name: "withoutIds",
+					name: 'withoutIds',
 					body: demo_wrapper('demo-without-ids')
 				}, withoutJs: {
-					name: "withoutJs",
+					name: 'withoutJs',
 					body: demo_wrapper('demo-without-js')
 				}, complex: {
-					name: "complex",
-					body: demo_wrapper('demo-complex')
+					name: 'complex',
+					body: demo_wrapper('demo-complex/demo-complex')
 				}, index: {
-					name: "index",
+					name: 'index',
 					body: all_demos()
 				}
 			});
@@ -81,13 +81,13 @@ describe('bit-docs-tag-demo', function () {
 			var siteConfig = {
 				html: {
 					dependencies: {
-						"bit-docs-tag-demo": 'file://' + __dirname
+						'bit-docs-tag-demo': 'file://' + path.dirname(__dirname)
 					}
 				},
 				dest: temp,
 				debug: !!process.env.npm_config_debug,
 				devBuild: !!process.env.npm_config_devBuild,
-				parent: "index",
+				parent: 'index',
 				forceBuild: true,
 				minifyBuild: false
 			};
@@ -147,7 +147,7 @@ describe('bit-docs-tag-demo', function () {
 
 				it('has correct url and parent', function () {
 					assert.equal(iframe.src, '../demos/' + path + '.html');
-					assert.equal(iframeDocument.URL, 'http://example.com/test/demos/' + path + '.html');
+					assert.equal(iframeDocument.URL, 'http://example.com/demos/' + path + '.html');
 					assert.equal(iframe.contentWindow.parent, browser.window.parent);
 				});
 
@@ -177,7 +177,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('with ids', function () {
 			before(function () {
-				return browser.visit('/test/temp/withIds.html');
+				return browser.visit('/temp/withIds.html');
 			});
 
 			basicsWork();
@@ -201,7 +201,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('without ids', function () {
 			before(function () {
-				return browser.visit('/test/temp/withoutIds.html');
+				return browser.visit('/temp/withoutIds.html');
 			});
 
 			basicsWork();
@@ -228,7 +228,7 @@ describe('bit-docs-tag-demo', function () {
 
 		describe('without js', function () {
 			before(function () {
-				return browser.visit('/test/temp/withoutJs.html');
+				return browser.visit('/temp/withoutJs.html');
 			});
 
 			basicsWork();
@@ -255,13 +255,13 @@ describe('bit-docs-tag-demo', function () {
 			this.timeout(4000);
 
 			before(function () {
-				return browser.visit('/test/temp/complex.html');
+				return browser.visit('/temp/complex.html');
 			});
 
 			basicsWork();
 
 			describe('Demo', function () {
-				iframeAssert('demo-complex', /CanJS is cool/);
+				iframeAssert('demo-complex/demo-complex', /CanJS is cool/);
 			});
 
 			describe('HTML', function () {
@@ -281,7 +281,7 @@ describe('bit-docs-tag-demo', function () {
 			this.timeout(8000);
 
 			before(function () {
-				return browser.visit('/test/temp/index.html');
+				return browser.visit('/temp/index.html');
 			});
 
 			it('exist on page', function () {
