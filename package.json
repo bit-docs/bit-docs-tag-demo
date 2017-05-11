@@ -21,12 +21,13 @@
     "release:minor": "npm version minor && npm publish",
     "release:patch": "npm version patch && npm publish",
     "release:pre": "npm version prerelease && npm publish",
-    "test": "mocha test/test.js --reporter spec",
+    "test": "mocha test.js --reporter spec",
     "preversion": "npm test",
     "postversion": "git push --tags && git push"
   },
   "devDependencies": {
     "bit-docs-generate-html": "0.5.0-pre.4",
+    "can-stache": "3.0.20",
     "express": "^4.15.2",
     "mocha": "^3.2.0",
     "rimraf": "^2.6.1",
