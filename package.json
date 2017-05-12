@@ -2,37 +2,42 @@
   "name": "bit-docs-tag-demo",
   "version": "0.3.0",
   "description": "@demo tag for bit-docs",
-  "main": "demo.js",
-  "scripts": {
-    "test": "mocha test.js --reporter spec",
-    "postversion": "git push --tags && git push",
-    "preversion": "npm test",
-    "release:pre": "npm version prerelease && npm publish",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish"
+  "keywords": [
+    "bit-docs"
+  ],
+  "homepage": "https://github.com/bit-docs/bit-docs-tag-demo#readme",
+  "bugs": {
+    "url": "https://github.com/bit-docs/bit-docs-tag-demo/issues"
   },
+  "license": "MIT",
+  "author": "Bitovi",
+  "main": "demo.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/bit-docs/bit-docs-tag-demo.git"
   },
-  "keywords": [
-    "bit-docs"
-  ],
-  "author": "Bitovi",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bit-docs/bit-docs-tag-demo/issues"
-  },
-  "homepage": "https://github.com/bit-docs/bit-docs-tag-demo#readme",
-  "dependencies": {
-    "bit-docs-process-tags": "^0.0.3",
-    "bit-docs-type-annotate": "^0.0.1"
+  "scripts": {
+    "release:major": "npm version major && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:patch": "npm version patch && npm publish",
+    "release:pre": "npm version prerelease && npm publish",
+    "test": "mocha test.js --reporter spec",
+    "preversion": "npm test",
+    "postversion": "git push --tags && git push"
   },
   "devDependencies": {
-    "bit-docs-generate-html": "^0.2.0",
-    "connect": "^2.14.4",
-    "mocha": "^2.5.3",
-    "zombie": "^4.2.1"
+    "bit-docs-generate-html": "0.5.0-pre.4",
+    "can-stache": "3.0.20",
+    "express": "^4.15.2",
+    "mocha": "^3.2.0",
+    "rimraf": "^2.6.1",
+    "steal": "^1.4.6",
+    "steal-less": "^1.2.0",
+    "zombie": "^5.0.5"
+  },
+  "steal": {
+    "plugins": [
+      "steal-less"
+    ]
   }
 }

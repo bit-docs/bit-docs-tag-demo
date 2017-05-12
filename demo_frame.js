@@ -45,9 +45,11 @@ module.exports = function(node){
 			var dataForHtml = node.querySelector("[data-for=html] > pre");
 			dataForHtml.innerHTML = prettyify(html);
 
-			var dataForJS = node.querySelector("[data-for=js] > pre");
-			dataForJS.innerHTML = prettyify(js.replace(/\t/g,"  "));
-			show(node.querySelector("[data-tab=js]"));
+			if (js) {
+				var dataForJS = node.querySelector("[data-for=js] > pre");
+				dataForJS.innerHTML = prettyify(js.replace(/\t/g,"  "));
+				show(node.querySelector("[data-tab=js]"));
+			}
 
 			tabs();
 	}
@@ -86,11 +88,11 @@ module.exports = function(node){
 					}
 				}
 			}
-			return source.trim();
+			return (source ? source.trim() : '');
 	}
 
 	function show(el) {
-		el.style.display = "block";
+		el.style.display = "";
 	}
 
 	function hide(el) {
@@ -101,7 +103,7 @@ module.exports = function(node){
 		node.querySelector("ul").addEventListener("click", function(ev){
 			var el = ev.target;
 			if(el.className === "tab") {
-				toggle(el.dataset.tab);
+				toggle(el.dataset ? el.dataset.tab : el.getAttribute("data-tab"));
 			}
 		});
 		toggle("demo");
