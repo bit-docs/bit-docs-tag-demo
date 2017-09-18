@@ -1,6 +1,6 @@
 /**
  * @parent bit-docs-tag-demo/tags
- * @module {bit-docs/types/tag} bit-docs-tag-demo/tags/demo @demo
+ * @module {bit-docs-process-tags/types/tag} bit-docs-tag-demo/tags/demo @demo
  * 
  * @description Placeholder for an application demo.
  * 
