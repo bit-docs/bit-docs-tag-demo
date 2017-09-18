@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "bit-docs-generate-html": "0.5.0-pre.4",
-    "can-stache": "3.0.20",
+    "can-stache": "3.7.2",
     "express": "^4.15.2",
     "mocha": "^3.2.0",
     "rimraf": "^2.6.1",
