@@ -252,7 +252,7 @@ describe('bit-docs-tag-demo', function () {
 		});
 
 		describe('complex', function () {
-			this.timeout(4000);
+			this.timeout(8000);
 
 			before(function () {
 				return browser.visit('/test/temp/complex.html');
