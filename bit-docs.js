@@ -25,10 +25,7 @@ module.exports = function(bitDocs){
 	deps[pkg.name] = pkg.version;
 
 	bitDocs.register("html", {
-		dependencies: deps,
-        staticDist: [
-           path.join(__dirname, "test", "demos")
-        ]
+		dependencies: deps
 	});
 
 	bitDocs.register("tags", tags);
