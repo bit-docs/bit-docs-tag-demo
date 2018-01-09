@@ -359,6 +359,33 @@ describe("bit-docs-tag-demo", function() {
 			});
 		});
 
+		describe("resize iframe to fit content up to 600px", function() {
+			before(function() {
+				return ctx.browser
+					.newPage()
+					.then(function(p) {
+						ctx.page = p;
+						return ctx.page.goto("http://127.0.0.1:8081/test/temp/height.html");
+					})
+					.then(function() {
+						return ctx.page.waitForFunction(function() {
+							var iframe = document.querySelector("iframe");
+							return iframe && iframe.style.height === "600px";
+						});
+					});
+			});
+
+			it("resizes height up to 600px", function() {
+				ctx.page
+					.evaluate(function() {
+						return document.querySelector("iframe").style.height;
+					})
+					.then(function(height) {
+						assert.equal(height, "600px");
+					});
+			});
+		});
+
 		describe("multiple instances", function() {
 			this.timeout(8000);
 
@@ -391,8 +418,8 @@ describe("bit-docs-tag-demo", function() {
 						};
 					})
 					.then(function(r) {
-						assert.equal(r.wrappers, 4, "four wrappers exists");
-						assert.equal(r.injected, 4, "four injected into wrappers");
+						assert.equal(r.wrappers, 5, "four wrappers exists");
+						assert.equal(r.injected, 5, "four injected into wrappers");
 					});
 			});
 		});

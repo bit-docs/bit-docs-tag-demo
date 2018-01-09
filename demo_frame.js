@@ -40,6 +40,7 @@ module.exports = function(node) {
 			show(node.querySelector("[data-tab=js]"));
 		}
 
+		resizeIframe();
 		tabs();
 	}
 
@@ -130,5 +131,31 @@ module.exports = function(node) {
 	function prettyify(txt) {
 		txt = txt.replace(/</g, "&lt;");
 		return typeof prettyPrintOne !== "undefined" ? prettyPrintOne(txt) : txt;
+	}
+
+	function resizeIframe() {
+		var frame = node.getElementsByTagName("iframe")[0];
+		var height = frame.contentWindow.document.body.scrollHeight;
+
+		var tolerance = 5; // pixels
+		var low = height - tolerance;
+		var high = height + tolerance;
+
+		// turns "150px" to 150, and "" to 0
+		var getCssHeight = function() {
+			var h = frame.style.height;
+			return Number(h.substr(0, h.length - 2) || 0);
+		};
+
+		var cssHeight = getCssHeight();
+
+		// Setting the height causes the next resizeIframe call to get a different
+		// height reading (lower); The range/tolerance logic is added to prevent the
+		// continous shrinking of the iframe
+		if (cssHeight < low || cssHeight > high) {
+			iframe.style.height = Math.min(high, 600) + "px";
+		}
+
+		setTimeout(resizeIframe, 1000);
 	}
 };

@@ -15,7 +15,8 @@ function allDemos() {
 		"demo-with-ids",
 		"demo-without-ids",
 		"demo-without-js",
-		"demo-complex"
+		"demo-complex",
+		"demo-height"
 	]
 		.map(function(demo) {
 			return "<h2>" + demo + "</h2>" + makeWrapper(demo);
@@ -39,6 +40,10 @@ var docMap = Promise.resolve({
 	complex: {
 		name: "complex",
 		body: makeWrapper("demo-complex")
+	},
+	height: {
+		name: "height",
+		body: makeWrapper("demo-height")
 	},
 	index: {
 		name: "index",
