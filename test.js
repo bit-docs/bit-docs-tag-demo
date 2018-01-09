@@ -12,9 +12,11 @@ describe("bit-docs-tag-demo", function() {
 			server.on("error", reject);
 		});
 
-		var puppeteerPromise = puppeteer.launch().then(function(b) {
-			ctx.browser = b;
-		});
+		var puppeteerPromise = puppeteer
+			.launch({ args: ["--no-sandbox"] })
+			.then(function(b) {
+				ctx.browser = b;
+			});
 
 		return Promise.all([serverPromise, puppeteerPromise]);
 	});
