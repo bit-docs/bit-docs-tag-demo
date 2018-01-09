@@ -17,23 +17,23 @@
     "url": "git+ssh://git@github.com/bit-docs/bit-docs-tag-demo.git"
   },
   "scripts": {
+    "generate": "node test/generate",
+    "preversion": "npm test",
+    "postversion": "git push --tags && git push",
     "release:major": "npm version major && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:patch": "npm version patch && npm publish",
     "release:pre": "npm version prerelease && npm publish",
-    "test": "mocha test.js --reporter spec",
-    "preversion": "npm test",
-    "postversion": "git push --tags && git push"
+    "test": "npm run generate && mocha test.js"
   },
   "devDependencies": {
     "bit-docs-generate-html": "0.5.0-pre.4",
     "can-stache": "3.7.2",
-    "express": "^4.15.2",
+    "express": "^4.16.2",
     "mocha": "^3.2.0",
-    "rimraf": "^2.6.1",
+    "puppeteer": "^0.13.0",
     "steal": "^1.4.6",
-    "steal-less": "^1.2.0",
-    "zombie": "^5.0.5"
+    "steal-less": "^1.2.0"
   },
   "steal": {
     "plugins": [
