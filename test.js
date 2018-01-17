@@ -1,310 +1,429 @@
-var Browser = require('zombie');
-var assert = require('assert');
-var express = require('express');
-var generate = require('bit-docs-generate-html/generate');
-var path = require('path');
-var rmrf = require('rimraf');
+var assert = require("assert");
+var express = require("express");
+var puppeteer = require("puppeteer");
 
-Browser.localhost('*.example.com', 3003);
-
-/*
- * Debug options:
- *	npm --debug test
- *	npm --devBuild test
- *	npm --skipGenerate test
- *	npm --debug --devBuild test
- *	npm --debug --skipGenerate test
- */
-
-describe('bit-docs-tag-demo', function () {
-	var browser = new Browser();
+describe("bit-docs-tag-demo", function() {
+	var ctx = this;
 	var server = express();
-	var temp = path.join(__dirname, 'test', 'temp');
 
-	before(function () {
-		if (!!process.env.npm_config_debug) {
-			browser.debug();
-		}
-
-		return new Promise(function (resolve, reject) {
-			server = server.use('/', express.static(__dirname)).listen(3003, resolve);
-			server.on('error', reject);
-		});
-	});
-
-	describe('temp directory', function () {
-		before(function (done) {
-			if (!!process.env.npm_config_skipGenerate) {
-				this.skip();
-			}
-
-			rmrf(temp, done);
+	before(function() {
+		var serverPromise = new Promise(function(resolve, reject) {
+			server = server.use("/", express.static(__dirname)).listen(8081, resolve);
+			server.on("error", reject);
 		});
 
-		it('is generated', function () {
-			this.timeout(60000);
-
-			function demo_wrapper(path) {
-				return '<div class="demo_wrapper" data-demo-src="demos/' + path + '.html"></div>' + "\n"
-			}
-
-			function all_demos() {
-				return [
-					'demo-with-ids',
-					'demo-without-ids',
-					'demo-without-js',
-					'demo-complex'
-				].map(function (demo) {
-					return '<h2>' + demo + '</h2>' + demo_wrapper(demo);
-				}).join('<br>');
-			}
-
-			var docMap = Promise.resolve({
-				withIds: {
-					name: 'withIds',
-					body: demo_wrapper('demo-with-ids')
-				}, withoutIds: {
-					name: 'withoutIds',
-					body: demo_wrapper('demo-without-ids')
-				}, withoutJs: {
-					name: 'withoutJs',
-					body: demo_wrapper('demo-without-js')
-				}, complex: {
-					name: 'complex',
-					body: demo_wrapper('demo-complex')
-				}, index: {
-					name: 'index',
-					body: all_demos()
-				}
+		var puppeteerPromise = puppeteer
+			.launch({ args: ["--no-sandbox"] })
+			.then(function(b) {
+				ctx.browser = b;
 			});
 
-			var siteConfig = {
-				html: {
-					dependencies: {
-						'bit-docs-tag-demo': 'file://' + __dirname
-					}
-				},
-				dest: temp,
-				debug: !!process.env.npm_config_debug,
-				devBuild: !!process.env.npm_config_devBuild,
-				parent: 'index',
-				forceBuild: true,
-				minifyBuild: false
-			};
-
-			return generate(docMap, siteConfig);
-		});
+		return Promise.all([serverPromise, puppeteerPromise]);
 	});
 
-	describe('demo widget', function () {
+	after(function() {
+		ctx.browser.close();
+		server.close();
+	});
+
+	describe("demo widget", function() {
 		function basicsWork() {
-			it('exists on page', function () {
-				browser.assert.success();
-				browser.assert.global('PACKAGES');
-				browser.assert.element('.demo_wrapper', 'wrapper exists');
-				browser.assert.element('.demo_wrapper .demo', 'injected into wrapper');
+			it("exists on page", function() {
+				return ctx.page
+					.waitForFunction(function() {
+						return !!window.PACKAGES;
+					})
+					.then(function() {
+						return ctx.page.evaluate(function() {
+							return {
+								hasPackages: !!window.PACKAGES,
+								hasWrapper: !!document.querySelectorAll(".demo_wrapper").length,
+								wasInjected: !!document.querySelectorAll(".demo_wrapper .demo")
+									.length
+							};
+						});
+					})
+					.then(function(r) {
+						assert(r.hasPackages, "has global PACKAGES");
+						assert(r.hasWrapper, "wrapper exists");
+						assert(r.wasInjected, "injected into wrapper");
+					});
 			});
 
-			describe('tabs and contents', function () {
-				it('has three', function () {
-					browser.assert.elements('.tab', 3, 'there are three tabs');
-					browser.assert.elements('.tab-content', 3, 'there are three tab contents');
+			describe("tabs and contents", function() {
+				it("has three", function() {
+					return ctx.page
+						.evaluate(function() {
+							return {
+								tabs: document.querySelectorAll(".tab").length,
+								tabContent: document.querySelectorAll(".tab-content").length
+							};
+						})
+						.then(function(r) {
+							assert.equal(r.tabs, 3, "there are three tabs");
+							assert.equal(r.tabContent, 3, "there are three tab contents");
+						});
 				});
 
-				it('only one active', function () {
-					browser.assert.element('.tab.active', 'only one tab is active');
-					browser.assert.element('.tab-content:not([style*="none"])', 'only one tab content is visible');
+				it("only one active", function() {
+					return ctx.page
+						.evaluate(function() {
+							return {
+								activeTabs: document.querySelectorAll(".tab.active").length,
+								activeTabContent: document.querySelectorAll(
+									'.tab-content:not([style*="none"])'
+								).length
+							};
+						})
+						.then(function(r) {
+							assert.equal(r.activeTabs, 1, "only one tab is active");
+							assert.equal(r.activeTabContent, 1, "only one tab is active");
+						});
 				});
 
-				it('defaults to demo', function () {
-					browser.assert.text('.tab.active', 'Demo', '"Demo" is active tab text');
-					browser.assert.attribute('.tab.active', 'data-tab', 'demo', 'demo is active data-tab');
-					browser.assert.style('[data-for="demo"]', 'display', '', 'demo tab content is visible');
+				it("defaults to demo", function() {
+					return ctx.page
+						.evaluate(function() {
+							var tab = document.querySelector(".tab.active");
+							return {
+								tabText: tab.textContent,
+								tabData: tab.dataset.tab,
+								isVisible:
+									document.querySelector('[data-for="demo"]').style.display ===
+									""
+							};
+						})
+						.then(function(r) {
+							assert.equal(r.tabText, "Demo", "'Demo' is active tab text");
+							assert.equal(r.tabData, "demo", "demo is active data-tab");
+							assert(r.isVisible, "demo tab content is visible");
+						});
 				});
 			});
 
-			describe('clicking HTML tab', function () {
-				before(function () {
-					return browser.click('[data-tab="html"]');
+			describe("clicking HTML tab", function() {
+				before(function() {
+					return ctx.page.click('[data-tab="html"]');
 				});
 
-				it('changes tab and content', function () {
-					browser.assert.attribute('.tab.active', 'data-tab', 'html', 'html is active data-tab');
-					browser.assert.style('[data-for="html"]', 'display', '', 'html tab content is visible');
+				it("changes tab and content", function() {
+					return ctx.page
+						.evaluate(function() {
+							return {
+								activeTab: document.querySelector(".tab.active").dataset.tab,
+								isVisible:
+									document.querySelector('[data-for="html"]').style.display ===
+									""
+							};
+						})
+						.then(function(r) {
+							assert.equal(r.activeTab, "html", "html is active data-tab");
+							assert(r.isVisible, "html tab content is visible");
+						});
 				});
 			});
 		}
 
 		function iframeAssert(path, regex) {
-			describe('iframe (' + path + '.html)', function () {
-				var iframe;
-				var iframeDocument;
+			describe("iframe (" + path + ".html)", function() {
+				it("has correct url and content", function() {
+					return ctx.page
+						.waitForFunction(function() {
+							var iframe = document.querySelector("iframe");
+							var iframeDocument = iframe.contentWindow.document;
 
-				before(function () {
-					iframe = browser.query('iframe');
-					iframeDocument = iframe.contentWindow.document;
-				});
+							return /Hello world/.test(iframeDocument.body.innerHTML);
+						})
+						.then(function() {
+							return ctx.page.evaluate(function() {
+								var iframe = document.querySelector("iframe");
+								var iframeDocument = iframe.contentWindow.document;
 
-				it('has correct url and parent', function () {
-					assert.equal(iframe.src, '../demos/' + path + '.html');
-					assert.equal(iframeDocument.URL, 'http://example.com/test/demos/' + path + '.html');
-					assert.equal(iframe.contentWindow.parent, browser.window.parent);
-				});
+								return {
+									src: iframe.src,
+									url: iframe.contentWindow.document.URL,
+									html: iframeDocument.body.innerHTML
+								};
+							});
+						})
+						.then(function(r) {
+							assert.equal(
+								r.src,
+								"http://127.0.0.1:8081/test/demos/" + path + ".html"
+							);
+							assert.equal(
+								r.url,
+								"http://127.0.0.1:8081/test/demos/" + path + ".html"
+							);
 
-				it('has correct content', function () {
-					assert(/Hello world/.test(iframeDocument.body.innerHTML));
-
-					if (regex instanceof RegExp) {
-						assert(regex.test(iframeDocument.body.innerHTML));
-					}
+							if (regex instanceof RegExp) {
+								assert(regex.test(r.html));
+							}
+						});
 				});
 			});
 		}
 
-		function dataforAssert(selector, strings) {
-			describe('data-for=' + selector, function () {
-				before(function () {
-					if (strings instanceof Array) {
-						strings = strings.join(' ');
-					}
-				});
-
-				it('has correct content', function () {
-					browser.assert.text('[data-for="' + selector + '"] pre', strings);
+		function dataForHtml(strings) {
+			describe("data-for=html", function() {
+				it("has correct content", function() {
+					return ctx.page
+						.evaluate(function() {
+							return document.querySelector("[data-for=html] pre").textContent;
+						})
+						.then(function(text) {
+							var content =
+								strings instanceof Array ? strings.join("") : strings;
+							assert.equal(
+								text
+									.replace("\n", "")
+									.replace(/;\s+/gm, ";")
+									.trim(),
+								content
+							);
+						});
 				});
 			});
 		}
 
-		describe('with ids', function () {
-			before(function () {
-				return browser.visit('/test/temp/withIds.html');
+		function dataForJs(strings) {
+			describe("data-for=js", function() {
+				it("has correct content", function() {
+					return ctx.page
+						.evaluate(function() {
+							return document.querySelector("[data-for=js] pre").textContent;
+						})
+						.then(function(text) {
+							var content =
+								strings instanceof Array ? strings.join("") : strings;
+							assert.equal(
+								text
+									.replace("\n", "")
+									.replace(/;\s+/gm, ";")
+									.trim(),
+								content
+							);
+						});
+				});
+			});
+		}
+
+		describe("with ids", function() {
+			before(function() {
+				return ctx.browser.newPage().then(function(p) {
+					ctx.page = p;
+					return ctx.page.goto("http://127.0.0.1:8081/test/temp/withIds.html");
+				});
 			});
 
-			basicsWork();
-
-			describe('Demo', function () {
-				iframeAssert('demo-with-ids', /it worked/);
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
 			});
 
-			describe('HTML', function () {
-				dataforAssert('html', '<b>Hello world!</b>');
+			describe("basics", function() {
+				basicsWork();
 			});
 
-			describe('JS', function () {
-				dataforAssert('js', [
+			describe("Demo", function() {
+				iframeAssert("demo-with-ids", /it worked/);
+			});
+
+			describe("HTML", function() {
+				dataForHtml("<b>Hello world!</b>");
+			});
+
+			describe("JS", function() {
+				dataForJs([
 					'var div = document.createElement("div");',
 					'div.textContent = "it worked!";',
-					'document.body.appendChild(div);'
+					"document.body.appendChild(div);"
 				]);
 			});
 		});
 
-		describe('without ids', function () {
-			before(function () {
-				return browser.visit('/test/temp/withoutIds.html');
+		describe("without ids", function() {
+			before(function() {
+				return ctx.browser.newPage().then(function(p) {
+					ctx.page = p;
+					return ctx.page.goto(
+						"http://127.0.0.1:8081/test/temp/withoutIds.html"
+					);
+				});
+			});
+
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
 			});
 
 			basicsWork();
 
-			describe('Demo', function () {
-				iframeAssert('demo-without-ids', /it worked/);
+			describe("Demo", function() {
+				iframeAssert("demo-without-ids", /it worked/);
 			});
 
-			describe('HTML', function () {
-				dataforAssert('html', [
-					'<div><b>Hello world!</b></div>',
-					'<div>it worked!</div>'
+			describe("HTML", function() {
+				dataForHtml([
+					"<div><b>Hello world!</b></div>",
+					"<div>it worked!</div>"
 				]);
 			});
 
-			describe('JS', function () {
-				dataforAssert('js', [
+			describe("JS", function() {
+				dataForJs([
 					'var div = document.createElement("div");',
 					'div.textContent = "it worked!";',
-					'document.body.appendChild(div);'
+					"document.body.appendChild(div);"
 				]);
 			});
 		});
 
-		describe('without js', function () {
-			before(function () {
-				return browser.visit('/test/temp/withoutJs.html');
+		describe("without js", function() {
+			before(function() {
+				return ctx.browser.newPage().then(function(p) {
+					ctx.page = p;
+					return ctx.page.goto(
+						"http://127.0.0.1:8081/test/temp/withoutJs.html"
+					);
+				});
+			});
+
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
 			});
 
 			basicsWork();
 
-			describe('Demo', function () {
-				iframeAssert('demo-without-js');
+			describe("Demo", function() {
+				iframeAssert("demo-without-js");
 			});
 
-			describe('HTML', function () {
-				dataforAssert('html', '<b>Hello world!</b>');
+			describe("HTML", function() {
+				dataForHtml("<b>Hello world!</b>");
 			});
 
-			describe('JS', function () {
+			describe("JS", function() {
 				// expect no content
-				dataforAssert('js', '');
+				dataForJs("");
 
-				it('tab is hidden', function () {
-					browser.assert.style('[data-tab="js"]', 'display', 'none', 'js tab is hidden');
+				it("tab is hidden", function() {
+					return ctx.page
+						.evaluate(function() {
+							return document.querySelector('[data-tab="js"]').style.display;
+						})
+						.then(function(display) {
+							assert.equal(display, "none", "js tab is hidden");
+						});
 				});
 			});
 		});
 
-		describe('complex', function () {
+		describe("complex", function() {
 			this.timeout(8000);
 
-			before(function () {
-				return browser.visit('/test/temp/complex.html');
+			before(function() {
+				return ctx.browser
+					.newPage()
+					.then(function(p) {
+						ctx.page = p;
+						return ctx.page.goto(
+							"http://127.0.0.1:8081/test/temp/complex.html"
+						);
+					})
+					.then(function() {
+						return ctx.page.waitForFunction(function() {
+							return !!document.querySelector(".tab.active");
+						});
+					});
+			});
+
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
 			});
 
 			basicsWork();
 
-			describe('Demo', function () {
-				iframeAssert('demo-complex');
+			describe("Demo", function() {
+				iframeAssert("demo-complex");
 			});
 
-			describe('HTML', function () {
-				dataforAssert('html', '<em>StealJS should load can-stache, which should appendChild here:</em>');
-			});
-
-			describe('JS', function () {
-				dataforAssert('js', /{{subject}}/);
+			describe("HTML", function() {
+				dataForHtml(
+					"<em>StealJS should load can-stache, which should appendChild here:</em>"
+				);
 			});
 		});
 
-		describe('multiple instances', function () {
+		describe("resize iframe to fit content up to 600px", function() {
+			before(function() {
+				return ctx.browser
+					.newPage()
+					.then(function(p) {
+						ctx.page = p;
+						return ctx.page.goto("http://127.0.0.1:8081/test/temp/height.html");
+					})
+					.then(function() {
+						return ctx.page.waitForFunction(function() {
+							var iframe = document.querySelector("iframe");
+							return iframe && iframe.style.height === "600px";
+						});
+					});
+			});
+
+			it("resizes height up to 600px", function() {
+				ctx.page
+					.evaluate(function() {
+						return document.querySelector("iframe").style.height;
+					})
+					.then(function(height) {
+						assert.equal(height, "600px");
+					});
+			});
+		});
+
+		describe("multiple instances", function() {
 			this.timeout(8000);
 
-			before(function () {
-				return browser.visit('/test/temp/index.html');
+			before(function() {
+				return ctx.browser
+					.newPage()
+					.then(function(p) {
+						ctx.page = p;
+						return ctx.page.goto("http://127.0.0.1:8081/test/temp/index.html");
+					})
+					.then(function() {
+						return ctx.page.waitForFunction(function() {
+							return !!document.querySelector(".tab.active");
+						});
+					});
 			});
 
-			it('exist on page', function () {
-				browser.assert.success();
-				browser.assert.elements('.demo_wrapper', 4, 'four wrappers exists');
-				browser.assert.elements('.demo_wrapper .demo', 4, 'four injected into wrappers');
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
 			});
 
-			describe('clicking all HTML tabs', function () {
-				before(function () {
-					var htmlTabs = browser.queryAll('[data-tab="html"]');
-
-					return Promise.all(htmlTabs.map(function (el) {
-						browser.click(el);
-					}));
-				});
-
-				it('changes all tabs and contents', function () {
-					browser.assert.attribute('.tab.active', 'data-tab', 'html', 'html is active data-tab');
-					browser.assert.style('[data-for="html"]', 'display', '', 'html tab content is visible');
-				});
+			it("exist on page", function() {
+				return ctx.page
+					.evaluate(function() {
+						return {
+							wrappers: document.querySelectorAll(".demo_wrapper").length,
+							injected: document.querySelectorAll(".demo_wrapper .demo").length
+						};
+					})
+					.then(function(r) {
+						assert.equal(r.wrappers, 5, "four wrappers exists");
+						assert.equal(r.injected, 5, "four injected into wrappers");
+					});
 			});
 		});
-	});
-
-	after(function () {
-		browser.destroy();
-		server.close();
 	});
 });
