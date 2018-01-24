@@ -132,27 +132,39 @@ module.exports = function(node) {
 		txt = txt.replace(/</g, "&lt;");
 		return typeof prettyPrintOne !== "undefined" ? prettyPrintOne(txt) : txt;
 	}
-
+	// Given the content height and the compute styles of the element,
+	// compute the total height of the box
+	function getTotalHeight(height, computed) {
+		return height +
+			parseInt(computed.marginTop, 10) +
+			parseInt(computed.marginBottom, 10) +
+			parseInt(computed.borderTopWidth, 10) +
+			parseInt(computed.borderBottomWidth, 10) +
+			parseInt(computed.paddingTop, 10) +
+			parseInt(computed.paddingBottom, 10);
+	}
 	function resizeIframe() {
 		var frame = node.getElementsByTagName("iframe")[0];
-		var height = frame.contentWindow.document.body.scrollHeight;
+		var computed = getComputedStyle(frame);
 
+		if (!frame.contentDocument || !frame.contentDocument.body) {
+			return;
+		}
+
+		// compute height tolerance range
 		var tolerance = 5; // pixels
-		var low = height - tolerance;
-		var high = height + tolerance;
-
-		// turns "150px" to 150, and "" to 0
-		var getCssHeight = function() {
-			var h = frame.style.height;
-			return Number(h.substr(0, h.length - 2) || 0);
-		};
-
-		var cssHeight = getCssHeight();
+		var desiredHeight = getTotalHeight(
+			frame.contentDocument.body.scrollHeight,
+			computed
+		);
+		var low = desiredHeight - tolerance;
+		var high = desiredHeight + tolerance;
 
 		// Setting the height causes the next resizeIframe call to get a different
-		// height reading (lower); The range/tolerance logic is added to prevent the
-		// continous shrinking of the iframe
-		if (cssHeight < low || cssHeight > high) {
+		// height reading (lower); The range/tolerance logic is added to prevent
+		// the continous shrinking of the iframe
+		var currentHeight = parseInt(computed.height, 10);
+		if (currentHeight < low || currentHeight > high) {
 			iframe.style.height = Math.min(high, 600) + "px";
 		}
 
