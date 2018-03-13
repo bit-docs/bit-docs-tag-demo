@@ -8,7 +8,7 @@ module.exports = `
 		<iframe></iframe>
 	</div>
 	<div class="tab-content" data-for="html">
-		<pre class="prettyprint"></pre>
+		<pre class="line-numbers language-html"></pre>
 	</div>
 	<div class="tab-content" data-for="js">
 		<pre class="line-numbers language-js"></pre>
