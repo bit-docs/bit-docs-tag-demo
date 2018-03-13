@@ -8,9 +8,9 @@ module.exports = `
 		<iframe></iframe>
 	</div>
 	<div class="tab-content" data-for="html">
-		<pre class="line-numbers language-html"></pre>
+		<pre class="line-numbers language-html"><code></code></pre>
 	</div>
 	<div class="tab-content" data-for="js">
-		<pre class="line-numbers language-js"></pre>
+		<pre class="line-numbers language-js"><code></code></pre>
 	</div>
 `;

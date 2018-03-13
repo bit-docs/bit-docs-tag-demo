@@ -26,6 +26,9 @@
     "release:pre": "npm version prerelease && npm publish",
     "test": "npm run generate && mocha test.js"
   },
+  "dependencies": {
+    "prismjs": "^1.11.0"
+  },
   "devDependencies": {
     "bit-docs-generate-html": "0.5.0-pre.4",
     "can-stache": "3.7.2",

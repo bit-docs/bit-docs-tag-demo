@@ -21,7 +21,6 @@ module.exports = function(node) {
 	render(node, docObject);
 
 	var iframe = node.getElementsByTagName("iframe")[0];
-
 	iframe.addEventListener("load", process);
 
 	function process() {
@@ -31,12 +30,15 @@ module.exports = function(node) {
 		var html = getHTML.call(this, demoEl);
 		var js = getJS.call(this, sourceEl);
 
-		var dataForHtml = node.querySelector("[data-for=html] > pre");
-		dataForHtml.innerHTML = prettyify(html);
+		var dataForHtml = node.querySelector("[data-for=html] > pre code, [data-for=html] > div > pre code");
+		dataForHtml.innerHTML = escape(html);
+		prettify(dataForHtml);
 
 		if (js) {
-			var dataForJS = node.querySelector("[data-for=js] > pre");
-			dataForJS.innerHTML = prettyify(js.replace(/\t/g, "  "));
+			var dataForJS = node.querySelector("[data-for=js] > pre code, [data-for=js] > div > pre code");
+			dataForJS.innerHTML = escape(js);
+			prettify(dataForJS);
+
 			show(node.querySelector("[data-tab=js]"));
 		}
 
@@ -50,18 +52,26 @@ module.exports = function(node) {
 		if (!html) {
 			// try to make from body
 			var clonedBody = this.contentDocument.body.cloneNode(true);
+
 			var scripts = [].slice.call(clonedBody.getElementsByTagName("script"));
 			scripts.forEach(function(script) {
 				if (!script.type || script.type.indexOf("javascript") === -1) {
 					script.parentNode.removeChild(script);
 				}
 			});
+
 			var styles = [].slice.call(clonedBody.getElementsByTagName("style"));
 			styles.forEach(function(style) {
 				style.parentNode.removeChild(style);
 			});
+
 			html = clonedBody.innerHTML;
 		}
+
+		if (html[0] === '\n') {
+			html = html.slice(1);
+		}
+
 		return html;
 	}
 
@@ -128,10 +138,19 @@ module.exports = function(node) {
 		}
 	}
 
-	function prettyify(txt) {
+	function escape(txt) {
 		txt = txt.replace(/</g, "&lt;");
-		return typeof prettyPrintOne !== "undefined" ? prettyPrintOne(txt) : txt;
+		return txt;
 	}
+
+	function prettify(el) {
+		if (typeof Prism === "undefined") {
+			return;
+		}
+
+		Prism.highlightElement(el);
+	}
+
 	// Given the content height and the compute styles of the element,
 	// compute the total height of the box
 	function getTotalHeight(height, computed) {
