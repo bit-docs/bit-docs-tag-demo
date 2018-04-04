@@ -13,6 +13,7 @@ function makeWrapper(path) {
 function allDemos() {
 	return [
 		"demo-with-ids",
+		"demo-without-html",
 		"demo-without-ids",
 		"demo-without-js",
 		"demo-complex",
@@ -29,6 +30,10 @@ var docMap = Promise.resolve({
 	withIds: {
 		name: "withIds",
 		body: makeWrapper("demo-with-ids")
+	},
+	withoutHtml: {
+		name: "withoutHtml",
+		body: makeWrapper("demo-without-html")
 	},
 	withoutIds: {
 		name: "withoutIds",
