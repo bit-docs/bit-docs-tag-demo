@@ -298,6 +298,28 @@ describe("bit-docs-tag-demo", function() {
 			});
 
 			describe("HTML", function() {
+				it("exists on page", function() {
+					return ctx.page
+						.waitForFunction(function() {
+							return !!window.PACKAGES;
+						})
+						.then(function() {
+							return ctx.page.evaluate(function() {
+								return {
+									hasPackages: !!window.PACKAGES,
+									hasWrapper: !!document.querySelectorAll(".demo_wrapper").length,
+									wasInjected: !!document.querySelectorAll(".demo_wrapper .demo")
+										.length
+								};
+							});
+						})
+						.then(function(r) {
+							assert(r.hasPackages, "has global PACKAGES");
+							assert(r.hasWrapper, "wrapper exists");
+							assert(r.wasInjected, "injected into wrapper");
+						});
+				});
+
 				// expect no content
 				dataForHtml("");
 
