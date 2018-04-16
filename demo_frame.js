@@ -30,9 +30,13 @@ module.exports = function(node) {
 		var html = getHTML.call(this, demoEl);
 		var js = getJS.call(this, sourceEl);
 
-		var dataForHtml = node.querySelector("[data-for=html] > pre code, [data-for=html] > div > pre code");
-		dataForHtml.innerHTML = escape(html);
-		prettify(dataForHtml);
+		if (html && html.trim()) {
+			var dataForHtml = node.querySelector("[data-for=html] > pre code, [data-for=html] > div > pre code");
+			dataForHtml.innerHTML = escape(html);
+			prettify(dataForHtml);
+
+			show(node.querySelector("[data-tab=html]"));
+		}
 
 		if (js) {
 			var dataForJS = node.querySelector("[data-for=js] > pre code, [data-for=js] > div > pre code");

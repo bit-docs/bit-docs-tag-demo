@@ -281,6 +281,38 @@ describe("bit-docs-tag-demo", function() {
 			});
 		});
 
+		describe("without html", function() {
+			before(function() {
+				return ctx.browser.newPage().then(function(p) {
+					ctx.page = p;
+					return ctx.page.goto(
+						"http://127.0.0.1:8081/test/temp/withoutHtml.html"
+					);
+				});
+			});
+
+			after(function() {
+				return ctx.page.close().then(function() {
+					ctx.page = null;
+				});
+			});
+
+			describe("HTML", function() {
+				// expect no content
+				dataForHtml("");
+
+				it("tab is hidden", function() {
+					return ctx.page
+						.evaluate(function() {
+							return document.querySelector('[data-tab="html"]').style.display;
+						})
+						.then(function(display) {
+							assert.equal(display, "none", "html tab is hidden");
+						});
+				});
+			});
+		});
+
 		describe("without js", function() {
 			before(function() {
 				return ctx.browser.newPage().then(function(p) {
@@ -448,8 +480,8 @@ describe("bit-docs-tag-demo", function() {
 						};
 					})
 					.then(function(r) {
-						assert.equal(r.wrappers, 6, "four wrappers exists");
-						assert.equal(r.injected, 6, "four injected into wrappers");
+						assert.equal(r.wrappers, 7, "demo wrappers exist");
+						assert.equal(r.injected, 7, "demos injected into wrappers");
 					});
 			});
 		});
