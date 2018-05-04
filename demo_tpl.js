@@ -1,3 +1,7 @@
+// Note that the space in the <code> </code> blocks is significant:
+// without it, any demo in a page would break the rest of the code
+// examples throughout the page.
+
 module.exports = `
 	<ul>
 		<li class="tab" data-tab="demo">Demo</li>
@@ -8,9 +12,9 @@ module.exports = `
 		<iframe></iframe>
 	</div>
 	<div class="tab-content" data-for="html">
-		<pre class="line-numbers language-html"><code></code></pre>
+		<pre class="line-numbers language-html"><code> </code></pre>
 	</div>
 	<div class="tab-content" data-for="js">
-		<pre class="line-numbers language-js"><code></code></pre>
+		<pre class="line-numbers language-js"><code> </code></pre>
 	</div>
 `;
