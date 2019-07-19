@@ -31,7 +31,9 @@ module.exports = function(node) {
 		var js = getJS.call(this, sourceEl);
 
 		if (html && html.trim()) {
-			var dataForHtml = node.querySelector("[data-for=html] > pre code, [data-for=html] > div > pre code");
+			var htmlPre = node.querySelector('[data-for=html] > pre, [data-for=html] > div > pre');
+			var dataForHtml = document.createElement('code');
+			htmlPre.appendChild(dataForHtml);
 			dataForHtml.innerHTML = escape(html);
 			prettify(dataForHtml);
 
@@ -39,7 +41,9 @@ module.exports = function(node) {
 		}
 
 		if (js) {
-			var dataForJS = node.querySelector("[data-for=js] > pre code, [data-for=js] > div > pre code");
+			var jsPre = node.querySelector('[data-for=js] > pre, [data-for=js] > div > pre');
+			var dataForJS = document.createElement('code');
+			jsPre.appendChild(dataForJS);
 			dataForJS.innerHTML = escape(js);
 			prettify(dataForJS);
 
