@@ -507,5 +507,45 @@ describe("bit-docs-tag-demo", function() {
 					});
 			});
 		});
+
+		describe("Insert code tag", function() {
+			insertCodeFor("html");
+			insertCodeFor("js");
+
+			function insertCodeFor(htmlOrJs) {
+				var tab = htmlOrJs === "html" ? "withoutJs" : "withoutHtml";
+				describe(htmlOrJs, function(){
+					
+					before(function() {
+						return ctx.browser.newPage().then(function(p) {
+							ctx.page = p;
+							return ctx.page.goto(
+								"http://127.0.0.1:8081/test/temp/" + tab + ".html"
+							);
+						}).then(function() {
+							return ctx.page.waitForFunction(function() {
+								return !!document.querySelector(".tab.active");
+							});
+						});
+					});
+	
+					after(function() {
+						return ctx.page.close().then(function() {
+							ctx.page = null;
+						});
+					});
+	
+					it("inserts " + htmlOrJs + " code", function() {
+						return ctx.page.evaluate(function(htmlOrJs){
+								return {
+									code: document.querySelector("[data-for=" + htmlOrJs + "] > pre"),
+								}
+							}, htmlOrJs).then(function(r){
+								assert.ok(r.code, "Code inserted at the right spot");
+							})
+					});
+				});
+			}
+		});
 	});
 });
