@@ -1,6 +1,7 @@
-// Note that the space in the <code> </code> blocks is significant:
-// without it, any demo in a page would break the rest of the code
-// examples throughout the page.
+// Leaving the content the of the <pre> empty is significant
+// <code> element will be appended when processing the code highlighting
+// this prevent PrismJS to register "Copy" button for demos at bit-docs-prettify step
+
 
 module.exports = `
 	<ul>
@@ -12,9 +13,9 @@ module.exports = `
 		<iframe></iframe>
 	</div>
 	<div class="tab-content" data-for="html">
-		<pre class="line-numbers language-html"><code> </code></pre>
+		<pre class="line-numbers language-html"></pre>
 	</div>
 	<div class="tab-content" data-for="js">
-		<pre class="line-numbers language-js"><code> </code></pre>
+		<pre class="line-numbers language-js"></pre>
 	</div>
 `;
